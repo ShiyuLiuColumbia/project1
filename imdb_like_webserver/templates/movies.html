@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block content %}
+	<h1>This is the index page where will show all some movies and search form!</h1>
+	<ul>
+		<li><a href="">movie is here!</a></li>
+		<li><a href="">movie is here!</a></li>
+		<li><a href="">movie is here!</a></li>
+	</ul>
+		<form action="/search" method="post">
+		<input type="text" name="search_content" placeholder="search">
+		<input type="submit" name="submit">
+	</form>
+{% endblock content %}
