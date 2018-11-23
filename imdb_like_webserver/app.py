@@ -18,10 +18,12 @@ Read about it online.
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response, url_for
+from flask import Flask, request, render_template, g, redirect, Response, url_for, flash
+from forms import RegistrationForm, LoginForm
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
+app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 
 
 
@@ -105,7 +107,7 @@ def teardown_request(exception):
 # see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
 #
 @app.route('/')
-def index():
+def home():
 	"""
 	request is a special object that Flask provides to access web request information:
 
@@ -133,19 +135,19 @@ def index():
 
 
   # return render_template("index.html", **context)
-	return render_template("index.html")
+	return render_template("home.html")
 
 
 #This is the movie-index page
 @app.route('/movies')
 def movie_index():
-	return render_template("movies.html")
+	return render_template("./movies/index.html")
 
 
 #This is the movie-show page
 @app.route('/movies/')
 def movie_show():
-	return render_template("movie.html")
+	return render_template("./movies/show.html")
 
 
 
@@ -168,11 +170,25 @@ def add():
   return redirect('/')
 
 
-@app.route('/login')
-def login():
-    abort(401)
-    this_is_never_executed()
+@app.route("/register", methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        flash('Account created for {}!'.format(form.username.data), 'success')
+        return redirect(url_for('movie_index'))
+    return render_template('register.html', title='Register', form=form)
 
+
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        if form.email.data == 'admin@blog.com' and form.password.data == 'password':
+            flash('You have been logged in!', 'success')
+            return redirect(url_for('movie_index'))
+        else:
+            flash('Login Unsuccessful. Please check username and password', 'danger')
+    return render_template('login.html', title='Login', form=form)
 
 
 if __name__ == "__main__":
@@ -182,7 +198,7 @@ if __name__ == "__main__":
   @click.option('--debug', is_flag=True)
   @click.option('--threaded', is_flag=True)
   @click.argument('HOST', default='0.0.0.0')
-  @click.argument('PORT', default=8111, type=int)
+  @click.argument('PORT', default=8112, type=int)
   def run(debug, threaded, host, port):
     """
     This function handles command line parameters.
