@@ -18,8 +18,9 @@ Read about it online.
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response, url_for, flash
-from forms import RegistrationForm, LoginForm
+from flask import Flask, request, render_template, g, redirect, Response, url_for, flash, session
+from werkzeug.security import check_password_hash, generate_password_hash
+# from forms import RegistrationForm, LoginForm
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -51,14 +52,6 @@ DATABASEURI = "postgresql://"+DB_USER+":"+DB_PASSWORD+"@"+DB_SERVER+"/w4111"
 #
 engine = create_engine(DATABASEURI)
 
-
-# Here we create a test table and insert some values in it
-engine.execute("""DROP TABLE IF EXISTS test;""")
-engine.execute("""CREATE TABLE IF NOT EXISTS test (
-  id serial,
-  name text
-);""")
-engine.execute("""INSERT INTO test(name) VALUES ('grace hopper'), ('alan turing'), ('ada lovelace');""")
 
 
 
@@ -158,8 +151,6 @@ def search():
 	return redirect('/')
 
 
-
-
 # Example of adding new data to the database
 @app.route('/add', methods=['POST'])
 def add():
@@ -169,26 +160,82 @@ def add():
   g.conn.execute(text(cmd), name1 = name, name2 = name);
   return redirect('/')
 
+#This is the login and register using flask-wtf 
+# @app.route("/register", methods=['GET', 'POST'])
+# def register():
+#     form = RegistrationForm()
+#     if form.validate_on_submit():
+#         flash('Account created for {}!'.format(form.username.data), 'success')
+#         return redirect(url_for('movie_index'))
+#     return render_template('register.html', title='Register', form=form)
+
+
+# @app.route("/login", methods=['GET', 'POST'])
+# def login():
+#     form = LoginForm()
+#     if form.validate_on_submit():
+#         if form.email.data == 'admin@blog.com' and form.password.data == 'password':
+#             flash('You have been logged in!', 'success')
+#             return redirect(url_for('movie_index'))
+#         else:
+#             flash('Login Unsuccessful. Please check username and password', 'danger')
+#     return render_template('login.html', title='Login', form=form)
+
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        flash('Account created for {}!'.format(form.username.data), 'success')
-        return redirect(url_for('movie_index'))
-    return render_template('register.html', title='Register', form=form)
+  if request.method == 'POST':
+      username = request.form['username']
+      password = request.form['password']
+      error = None
+
+      if not username:
+          error = 'Username is required.'
+      elif not password:
+          error = 'Password is required.'
+
+      elif g.conn.execute(
+          text('SELECT id FROM users WHERE username = :name'), name = username
+      ).fetchone() is not None:
+          error = 'User {} is already registered.'.format(username)
+
+      if error is None:
+          g.conn.execute(
+              text('INSERT INTO users (username, password) VALUES (:name1, :name2)'),
+              name1=username, name2=generate_password_hash(password)
+          )
+          flash('User {} successfully registered.'.format(username),'success')
+          return redirect(url_for('login'))
+
+      flash(error,'danger')
+
+  return render_template('register.html', title='Login')
 
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        if form.email.data == 'admin@blog.com' and form.password.data == 'password':
-            flash('You have been logged in!', 'success')
+
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        error = None
+        user = g.conn.execute(
+            text('SELECT * FROM users WHERE username = :name'), name=username
+        ).fetchone()
+
+        if user is None:
+            error = 'Incorrect username.'
+        elif not check_password_hash(user['password'], password):
+            error = 'Incorrect password.'
+
+        if error is None:
+            session.clear()
+            session['user_id'] = user['id']
             return redirect(url_for('movie_index'))
-        else:
-            flash('Login Unsuccessful. Please check username and password', 'danger')
-    return render_template('login.html', title='Login', form=form)
+
+        flash(error,'danger')
+
+    return render_template('login.html',title='Login')
 
 
 if __name__ == "__main__":
@@ -198,7 +245,7 @@ if __name__ == "__main__":
   @click.option('--debug', is_flag=True)
   @click.option('--threaded', is_flag=True)
   @click.argument('HOST', default='0.0.0.0')
-  @click.argument('PORT', default=8112, type=int)
+  @click.argument('PORT', default=8111, type=int)
   def run(debug, threaded, host, port):
     """
     This function handles command line parameters.
