@@ -14,12 +14,13 @@ Go to http://localhost:8111 in your browser
 A debugger such as "pdb" may be helpful for debugging.
 Read about it online.
 """
-
+from __future__ import print_function
 import os
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response, url_for, flash, session
 from werkzeug.security import check_password_hash, generate_password_hash
+import sys
 # from forms import RegistrationForm, LoginForm
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -39,8 +40,8 @@ app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 # For your convenience, we already set it to the class database
 
 # Use the DB credentials you received by e-mail
-DB_USER = "sl4401"
-DB_PASSWORD = "ahe08y00"
+DB_USER = "ho2271"
+DB_PASSWORD = "d1d6s4ad"
 
 DB_SERVER = "w4111.cisxo09blonu.us-east-1.rds.amazonaws.com"
 
@@ -51,6 +52,17 @@ DATABASEURI = "postgresql://"+DB_USER+":"+DB_PASSWORD+"@"+DB_SERVER+"/w4111"
 # This line creates a database engine that knows how to connect to the URI above
 #
 engine = create_engine(DATABASEURI)
+
+
+# Here we create a test table and insert some values in it
+engine.execute("""DROP TABLE IF EXISTS users;""")
+
+engine.execute("""CREATE TABLE users (
+  id SERIAL PRIMARY KEY ,
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL
+);""")
+
 
 
 
@@ -67,7 +79,7 @@ def before_request():
   try:
     g.conn = engine.connect()
   except:
-    print "uh oh, problem connecting to database"
+    print("uh oh, problem connecting to database")
     import traceback; traceback.print_exc()
     g.conn = None
 
@@ -112,7 +124,7 @@ def home():
 	"""
 
 	# DEBUG: this is debugging code to see what request looks like
- 	print request.args
+ 	print(request.args)
 
 
   # #
@@ -134,13 +146,20 @@ def home():
 #This is the movie-index page
 @app.route('/movies')
 def movie_index():
-	return render_template("./movies/index.html")
+  cmd = 'SELECT * FROM movie limit 10'
+  movies = g.conn.execute(text(cmd))
+  print(type(movies), file=sys.stderr)
+  return render_template("./movies/index.html", movies = movies)
 
 
 #This is the movie-show page
-@app.route('/movies/')
-def movie_show():
-	return render_template("./movies/show.html")
+@app.route('/movies/<int:id>')
+def movie_show(id):
+  cmd = 'SELECT movie.mov_id, movie.name AS mov_name, movie.language, movie.runtime, movie.release_date, genre.name AS genre_name,  act.cast_id, act.role, mov_cast.name AS cast_name, mov_cast.gender  FROM movie, belong_to, mov_cast, act, genre WHERE movie.mov_id = :name  AND movie.mov_id = act.mov_id AND belong_to.mov_id = movie.mov_id AND act.cast_id = mov_cast.cast_id AND genre.genre_id = belong_to.genre_id'
+  selected_movie = g.conn.execute(text(cmd), name=id).fetchone()
+  print(type(selected_movie), file=sys.stderr)
+
+  return render_template("./movies/show.html", selected_movie = selected_movie)
 
 
 
@@ -155,9 +174,8 @@ def search():
 @app.route('/add', methods=['POST'])
 def add():
   name = request.form['name']
-  print name
-  cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)';
-  g.conn.execute(text(cmd), name1 = name, name2 = name);
+  cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)'
+  g.conn.execute(text(cmd), name1 = name, name2 = name)
   return redirect('/')
 
 #This is the login and register using flask-wtf 
@@ -237,6 +255,13 @@ def login():
 
     return render_template('login.html',title='Login')
 
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('movie_index'))
+
+
+
 
 if __name__ == "__main__":
   import click
@@ -245,7 +270,7 @@ if __name__ == "__main__":
   @click.option('--debug', is_flag=True)
   @click.option('--threaded', is_flag=True)
   @click.argument('HOST', default='0.0.0.0')
-  @click.argument('PORT', default=8111, type=int)
+  @click.argument('PORT', default=8112, type=int)
   def run(debug, threaded, host, port):
     """
     This function handles command line parameters.
@@ -260,7 +285,7 @@ if __name__ == "__main__":
     """
 
     HOST, PORT = host, port
-    print "running on %s:%d" % (HOST, PORT)
+    print("running on %s:%d" % (HOST, PORT))
     app.run(host=HOST, port=PORT, debug=True, threaded=threaded)
 
 
