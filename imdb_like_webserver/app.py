@@ -168,7 +168,26 @@ def actor_show(id):
 # This is the search path
 @app.route('/search',methods=['POST'])
 def search():
-	return redirect('/')
+  if request.method == 'POST':
+    search_for = request.form['search_for']
+    search_content = request.form['search_content']
+    search_content = '%'+search_content+'%'
+    results = []
+    if search_for == 'movies':
+      cmd = "SELECT mov_id, name FROM movie WHERE movie.name LIKE (:name1) limit 10"
+      search_result = g.conn.execute(text(cmd), name1=search_content)
+      for result in search_result:
+        results.append(result)
+    elif search_for == 'actors':
+      cmd = "SELECT cast_id, name FROM mov_cast WHERE mov_cast.name LIKE (:name2) limit 10"
+      search_result = g.conn.execute(text(cmd), name2=search_content)
+      for result in search_result:
+        results.append(result)
+    print(len(results))
+    return render_template("search_result.html", results=results, search_for=search_for)
+ 
+  # elif search_for == 'actors':
+  return redirect('/')
 
 # add ratings or movies into database
 @app.route('/add', methods=['GET','POST'])
@@ -229,6 +248,7 @@ def add():
 @app.route("/register", methods=['GET', 'POST'])
 def register():
   if request.method == 'POST':
+      print(request.form, file=sys.stderr)
       username = request.form['username']
       password = request.form['password']
       error = None
@@ -253,7 +273,7 @@ def register():
 
       flash(error,'danger')
 
-  return render_template('register.html', title='Login')
+  return render_template('register.html', title='Sign up')
 
 
 @app.route("/login", methods=['GET', 'POST'])

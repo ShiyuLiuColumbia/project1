@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>This is the top 10 results for {{ search_for }}</h1>
+{% if search_for == 'movies' %}
+	<ul>
+		{% for result in results %}
+		<li><a href="/movies/{{ result[0] }}">{{ result[1] }}</a></li>
+		{% endfor %}	
+	</ul>
+{% elif search_for == 'actors'%}
+	<ul>
+		{% for result in results %}
+		<li><a href="/actors/{{ result[0] }}">{{ result[1] }}</a></li>
+		{% endfor %}	
+	</ul>
+{% endif %}
+
+{% endblock content %}
