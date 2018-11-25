@@ -1,18 +1,23 @@
 {% extends "layout.html" %}
 {% block content %}
-	{% for movie in selected_movie %}
-	{{ movie }}
-	{% endfor %}
-    <h1>Movie Name: {{ selected_movie['mov_name'] }}</h1>
+    <h1>Movie Name: {{ selected_movie_info['name'] }}</h1>
     <ul>
-        <li>Language: {{ selected_movie['language'] }}</li>
-        <li>Runtime: {{ selected_movie['runtime'] }}</li>
-        <li>Release Date: {{ selected_movie['release_date'] }}</li>
-        <li>Genre: {{ selected_movie['genre_name'] }}</li>
-        <li>Actor Name: {{ selected_movie['cast_name'] }}</li>
-        <li>Actor Role: {{ selected_movie['role'] }}</li>
-        <li>Actor Gender: {{ selected_movie['gender'] }}</li>
-
+        <li>Language: {{ selected_movie_info['language'] }}</li>
+        <li>Runtime: {{ selected_movie_info['runtime'] }}</li>
+        <li>Release Date: {{ selected_movie_info['release_date'] }}</li>
+        <li>Revenue: {{ selected_movie_info['revenue'] }}</li>
+        <li>Genre: 
+            {% for genre in selected_movie_genre %}
+            {{ genre[0] }}
+            {% endfor%}
+        </li>
+        <li>Actors: 
+            <ul>
+            {% for actor in selected_movie_castInfo %} 
+            <li>Actor Name: <a href="/actors/{{ actor[0] }}">{{ actor[1] }}</a> ---- Role: {{ actor[2] }}</li>  
+            {% endfor %}
+            </ul>
+        </li>
     </ul>
 
 {% endblock content %}

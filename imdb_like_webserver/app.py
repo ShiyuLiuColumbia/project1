@@ -143,11 +143,27 @@ def movie_index():
 #This is the movie-show page
 @app.route('/movies/<int:id>')
 def movie_show(id):
-  cmd = 'SELECT movie.mov_id, movie.name AS mov_name, movie.language, movie.runtime, movie.release_date, genre.name AS genre_name,  act.cast_id, act.role, mov_cast.name AS cast_name, mov_cast.gender  FROM movie, belong_to, mov_cast, act, genre WHERE movie.mov_id = :name  AND movie.mov_id = act.mov_id AND belong_to.mov_id = movie.mov_id AND act.cast_id = mov_cast.cast_id AND genre.genre_id = belong_to.genre_id'
-  selected_movie = g.conn.execute(text(cmd), name=id)
-  print(type(selected_movie), file=sys.stderr)
+  # cmd = 'SELECT movie.mov_id, movie.name AS mov_name, movie.language, movie.runtime, movie.release_date, genre.name AS genre_name,  act.cast_id, act.role, mov_cast.name AS cast_name, mov_cast.gender  FROM movie, belong_to, mov_cast, act, genre WHERE movie.mov_id = :name  AND movie.mov_id = act.mov_id AND belong_to.mov_id = movie.mov_id AND act.cast_id = mov_cast.cast_id AND genre.genre_id = belong_to.genre_id'
+  cmd1 = 'SELECT * FROM movie WHERE movie.mov_id = :name1'
+  cmd2 = 'SELECT genre.name FROM movie, genre, belong_to WHERE movie.mov_id = :name2 AND movie.mov_id = belong_to.mov_id AND belong_to.genre_id = genre.genre_id'
+  cmd3 = 'SELECT act.cast_id, act.role, mov_cast.name FROM movie, mov_cast, act WHERE movie.mov_id = :name3 AND movie.mov_id = act.mov_id AND act.cast_id = mov_cast.cast_id'
+  selected_movie_info = g.conn.execute(text(cmd1), name1=id).fetchone()
+  selected_movie_genre = g.conn.execute(text(cmd2), name2=id)
+  selected_movie_castInfo = g.conn.execute(text(cmd3), name3=id)
 
-  return render_template("./movies/show.html", selected_movie = selected_movie)
+  # print(type(selected_movie), file=sys.stderr)
+
+  return render_template("./movies/show.html", selected_movie_info = selected_movie_info, selected_movie_genre=selected_movie_genre, selected_movie_castInfo=selected_movie_castInfo)
+
+
+#This is actor-show page
+@app.route('/actors/<int:id>')
+def actor_show(id):
+  cmd1 = 'SELECT * FROM mov_cast WHERE mov_cast.cast_id = :name1'
+  cmd2 = 'SELECT movie.mov_id, movie.name, act.role FROM movie, mov_cast, act WHERE mov_cast.cast_id = :name2 AND movie.mov_id = act.mov_id AND mov_cast.cast_id = act.cast_id'
+  selected_actor_info = g.conn.execute(text(cmd1), name1=id).fetchone()
+  selected_actor_movieInfo = g.conn.execute(text(cmd2), name2 = id)
+  return render_template("./actors/show.html", selected_actor_info = selected_actor_info, selected_actor_movieInfo = selected_actor_movieInfo)
 
 # This is the search path
 @app.route('/search',methods=['POST'])
