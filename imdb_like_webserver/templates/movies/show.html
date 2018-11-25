@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block content %}
+	<h1>Movie Name: {{ selected_movie['mov_name'] }}</h1>
+	<ul>
+		<li>Language: {{ selected_movie['language'] }}</li>
+		<li>Runtime: {{ selected_movie['runtime'] }}</li>
+		<li>Release Date: {{ selected_movie['release_date'] }}</li>
+		<li>Genre: {{ selected_movie['genre_name'] }}</li>
+		<li>Actor Name: {{ selected_movie['cast_name'] }}</li>
+		<li>Actor Role: {{ selected_movie['role'] }}</li>
+		<li>Actor Gender: {{ selected_movie['gender'] }}</li>
+
+	</ul>
+{% endblock content %}
