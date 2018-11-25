@@ -28,7 +28,6 @@ app = Flask(__name__, template_folder=tmpl_dir)
 app.config['SECRET_KEY'] = '5791628bb0b13ce0c676dfde280ba245'
 
 
-
 # XXX: The Database URI should be in the format of: 
 #
 #     postgresql://USER:PASSWORD@<IP_OF_POSTGRE_SQL_SERVER>/<DB_NAME>
@@ -47,10 +46,7 @@ DB_SERVER = "w4111.cisxo09blonu.us-east-1.rds.amazonaws.com"
 
 DATABASEURI = "postgresql://"+DB_USER+":"+DB_PASSWORD+"@"+DB_SERVER+"/w4111"
 
-
-#
 # This line creates a database engine that knows how to connect to the URI above
-#
 engine = create_engine(DATABASEURI)
 
 
@@ -62,9 +58,6 @@ engine.execute("""CREATE TABLE users (
   username TEXT UNIQUE NOT NULL,
   password TEXT NOT NULL
 );""")
-
-
-
 
 
 @app.before_request
@@ -93,11 +86,6 @@ def teardown_request(exception):
     g.conn.close()
   except Exception as e:
     pass
-
-
-
-
-
 
 # @app.route is a decorator around index() that means:
 #   run index() whenever the user tries to access the "/" path using a GET request
@@ -161,22 +149,44 @@ def movie_show(id):
 
   return render_template("./movies/show.html", selected_movie = selected_movie)
 
-
-
- 
 # This is the search path
 @app.route('/search',methods=['POST'])
 def search():
 	return redirect('/')
 
-
-# Example of adding new data to the database
-@app.route('/add', methods=['POST'])
+# add ratings or movies into database
+@app.route('/add', methods=['GET','POST'])
 def add():
-  name = request.form['name']
-  cmd = 'INSERT INTO test(name) VALUES (:name1), (:name2)'
-  g.conn.execute(text(cmd), name1 = name, name2 = name)
-  return redirect('/')
+	if request.method == 'GET':
+		pass
+
+	if request.method == 'POST':
+		if "new_rate" in request.form:
+			mov_id = request.form.get('mov_id')
+			user_id = request.form.get('user_id')
+			grade = request.form.get('grade')
+			review = request.form.get('review')
+			
+			print(mov_id, user_id, grade, review)
+
+			cmd = 'INSERT INTO rate(mov_id, user_id, grade, review) VALUES (:name1), (:name2), (:name3), (:name4);'
+			#g.conn.execute(text(cmd), name1 = mov_id, name2 = user_id, name3=grade, name4=review)
+		
+		elif "new_movie" in request.form:
+			name = request.form.get('name')
+			mov_id = request.form.get('mov_id')
+			language = request.form.get('language')
+			runtime = request.form.get('runtime')
+			release_date = request.form.get('release_date')
+			revenue = request.form.get('revenue')
+
+			print(name, mov_id, language, runtime, release_date, revenue)
+
+			cmd = 'INSERT INTO movie(name, mov_id, language, runtime, release_date, revenue) VALUES (:name1), (:name2), (:name3), (:name4), (:name5), (:name6);'
+			#g.conn.execute(text(cmd), name1 = name, name2 = mov_id, name3=language, name4=runtime, name5=release_date, name6=revenue)
+		else:
+			print("DID NOT GET THE FORM VALUE")
+	return render_template("/add.html")
 
 #This is the login and register using flask-wtf 
 # @app.route("/register", methods=['GET', 'POST'])
@@ -259,8 +269,6 @@ def login():
 def logout():
     session.clear()
     return redirect(url_for('movie_index'))
-
-
 
 
 if __name__ == "__main__":
