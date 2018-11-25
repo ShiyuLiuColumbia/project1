@@ -156,7 +156,7 @@ def movie_index():
 @app.route('/movies/<int:id>')
 def movie_show(id):
   cmd = 'SELECT movie.mov_id, movie.name AS mov_name, movie.language, movie.runtime, movie.release_date, genre.name AS genre_name,  act.cast_id, act.role, mov_cast.name AS cast_name, mov_cast.gender  FROM movie, belong_to, mov_cast, act, genre WHERE movie.mov_id = :name  AND movie.mov_id = act.mov_id AND belong_to.mov_id = movie.mov_id AND act.cast_id = mov_cast.cast_id AND genre.genre_id = belong_to.genre_id'
-  selected_movie = g.conn.execute(text(cmd), name=id).fetchone()
+  selected_movie = g.conn.execute(text(cmd), name=id)
   print(type(selected_movie), file=sys.stderr)
 
   return render_template("./movies/show.html", selected_movie = selected_movie)
