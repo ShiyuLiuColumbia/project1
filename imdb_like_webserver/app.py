@@ -140,19 +140,88 @@ def movie_show(id):
   cmd3 = 'SELECT act.cast_id, act.role, mov_cast.name FROM movie, mov_cast, act WHERE movie.mov_id = %s AND movie.mov_id = act.mov_id AND act.cast_id = mov_cast.cast_id'
   cmd4 = 'SELECT link.web_id, link.mov_id FROM link WHERE link.mov_id = %s'
   cmd5 = 'SELECT director.director_id, director.name FROM movie, direct, director WHERE movie.mov_id = %s AND movie.mov_id = direct.mov_id AND direct.director_id = director.director_id'
+  cmd6 = 'SELECT rate.grade, rate.review, user_most_like.user_id, user_most_like.name FROM rate, user_most_like WHERE rate.mov_id = %s AND rate.review is not Null AND user_most_like.user_id = rate.user_id'
+  if 'user_id' in session:
+    cmd7 = 'SELECT rate.grade, rate.review FROM movie, rate, user_most_like WHERE movie.mov_id = rate.mov_id AND rate.user_id = user_most_like.user_id AND user_most_like.user_id = %s AND movie.mov_id = %s'
+    selected_user_movie_rateInfos = g.conn.execute(cmd7, (session['user_id'], id,))
+    selected_user_movie_rateInfo= []
+    for tmp in selected_user_movie_rateInfos:
+      selected_user_movie_rateInfo.append(tmp)
+    if len(selected_user_movie_rateInfo) == 0:
+      selected_user_movie_rateInfo = None
+
+  else:
+    selected_user_movie_rateInfo = None
+
+
   selected_movie_info = g.conn.execute(cmd1, (id,)).fetchone()
   selected_movie_genre = g.conn.execute(cmd2, (id,))
   selected_movie_castInfo = g.conn.execute(cmd3, (id,))
   selected_movie_link = g.conn.execute(cmd4, (id,)).fetchone()
   selected_movie_directorInfo = g.conn.execute(cmd5, (id,))
+  selected_movie_rateInfos = g.conn.execute(cmd6, (id,))
+  selected_movie_rateInfo = []
+  for tmp in selected_movie_rateInfos:
+    selected_movie_rateInfo.append(tmp)
 
 
   # print(type(selected_movie), file=sys.stderr)
 
-  return render_template("./movies/show.html", selected_movie_info = selected_movie_info, selected_movie_genre=selected_movie_genre, selected_movie_castInfo=selected_movie_castInfo, selected_movie_link=selected_movie_link, selected_movie_directorInfo=selected_movie_directorInfo)
+  return render_template("./movies/show.html", selected_movie_info = selected_movie_info, selected_movie_genre=selected_movie_genre, selected_movie_castInfo=selected_movie_castInfo, selected_movie_link=selected_movie_link, selected_movie_directorInfo=selected_movie_directorInfo, selected_movie_rateInfo=selected_movie_rateInfo, selected_user_movie_rateInfo=selected_user_movie_rateInfo)
+
+#This is review-add route
+@app.route('/movies/<int:id>/rates',methods=['GET', 'POST'])
+def rate_add(id):
+  if 'user_id' not in session:
+    flash('Please login first before add reviews!','danger')
+    return redirect(url_for('login'))
+  else:
+    if request.method == 'GET':
+      cmd1 = 'SELECT movie.name FROM movie WHERE movie.mov_id = %s limit 10'
+      selected_movie_info = g.conn.execute(cmd1, (id,)).fetchone()
+      return render_template("./rates/add.html", id = id, selected_movie_info=selected_movie_info)
+    else:
+      grade = request.form['grade']
+      review = request.form['review']
+      user_id = session['user_id']
+      mov_id = id
+      cmd2 = 'INSERT INTO rate(mov_id, user_id, grade, review) VALUES (%s, %s, %s, %s);'
+      g.conn.execute(cmd2, (mov_id, user_id, grade, review))
+      return redirect(url_for('movie_show', id=mov_id))
+
+#This is review-edit route
+@app.route('/movies/<int:id>/rates/edit',methods=['GET', 'POST'])
+def rate_edit(id):
+  if 'user_id' not in session:
+    flash('Please login first before edit reviews!','danger')
+    return redirect(url_for('login'))
+  else:
+    if request.method == 'GET':
+      cmd1 = 'SELECT movie.name, rate.grade, rate.review FROM movie, rate, user_most_like WHERE movie.mov_id = %s AND rate.mov_id = movie.mov_id AND user_most_like.user_id = rate.user_id'
+      selected_rate_info = g.conn.execute(cmd1, (id,)).fetchone()
+      return render_template("./rates/edit.html", id = id, selected_rate_info=selected_rate_info)
+    else:
+      grade = request.form['grade']
+      review = request.form['review']
+      user_id = session['user_id']
+      mov_id = id
+      cmd2 = 'UPDATE rate SET grade = %s, review = %s WHERE rate.user_id = %s AND rate.mov_id =%s;'
+      g.conn.execute(cmd2, (grade, review, user_id, mov_id,))
+      return redirect(url_for('movie_show', id=mov_id))
+
+#This is review-delete route
+@app.route('/movies/<int:id>/rates/delete',methods=['POST'])
+def rate_delete(id):
+  if 'user_id' not in session:
+    flash('Please login first before delete reviews!','danger')
+    return redirect(url_for('login'))
+  else:
+    cmd = 'DELETE FROM rate WHERE user_id = %s AND mov_id = %s'
+    g.conn.execute(cmd, (session['user_id'], id, ))
+    return redirect(url_for('movie_show', id=id))
 
 
-#This is actor-show page
+#This is actor-show route
 @app.route('/actors/<int:id>')
 def actor_show(id):
   cmd1 = 'SELECT * FROM mov_cast WHERE mov_cast.cast_id = %s'
@@ -161,7 +230,7 @@ def actor_show(id):
   selected_actor_movieInfo = g.conn.execute(cmd2, (id,))
   return render_template("./actors/show.html", selected_actor_info = selected_actor_info, selected_actor_movieInfo = selected_actor_movieInfo)
 
-#This is director-show page
+#This is director-show route
 @app.route('/directors/<int:id>')
 def director_show(id):
   cmd1 = 'SELECT * FROM director WHERE director.director_id = %s'
@@ -171,7 +240,7 @@ def director_show(id):
   return render_template("./directors/show.html", selected_director_info = selected_director_info, selected_director_movieInfo=selected_director_movieInfo)
 
 
-#This is user-show page
+#This is user-show route
 @app.route('/users/<int:id>')
 def user_show(id):
   cmd1 = 'SELECT * FROM user_most_like WHERE user_most_like.user_id = %s'

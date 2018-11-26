@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block content %}
 
-	<h1>These 10 movies shown on the age are selected randomly from IMDB dataset!</h1>
+	<h1>These 10 movies shown on the page are selected randomly from IMDB dataset!</h1>
 	<ul>
 		{% for movie in movies %}
 		<li><a href="/movies/{{ movie['mov_id'] }}">{{ movie['name'] }}</a></li>
