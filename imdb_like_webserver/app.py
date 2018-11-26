@@ -50,15 +50,6 @@ DATABASEURI = "postgresql://"+DB_USER+":"+DB_PASSWORD+"@"+DB_SERVER+"/w4111"
 engine = create_engine(DATABASEURI)
 
 
-# Here we create a test table and insert some values in it
-engine.execute("""DROP TABLE IF EXISTS users;""")
-
-engine.execute("""CREATE TABLE users (
-  id SERIAL PRIMARY KEY ,
-  username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL
-);""")
-
 
 @app.before_request
 def before_request():
@@ -134,7 +125,7 @@ def home():
 #This is the movie-index page
 @app.route('/movies')
 def movie_index():
-  cmd = 'SELECT * FROM movie limit 10'
+  cmd = 'SELECT * FROM movie ORDER BY RANDOM() LIMIT 10 '
   movies = g.conn.execute(text(cmd))
   print(type(movies), file=sys.stderr)
   return render_template("./movies/index.html", movies = movies)
@@ -144,26 +135,40 @@ def movie_index():
 @app.route('/movies/<int:id>')
 def movie_show(id):
   # cmd = 'SELECT movie.mov_id, movie.name AS mov_name, movie.language, movie.runtime, movie.release_date, genre.name AS genre_name,  act.cast_id, act.role, mov_cast.name AS cast_name, mov_cast.gender  FROM movie, belong_to, mov_cast, act, genre WHERE movie.mov_id = :name  AND movie.mov_id = act.mov_id AND belong_to.mov_id = movie.mov_id AND act.cast_id = mov_cast.cast_id AND genre.genre_id = belong_to.genre_id'
-  cmd1 = 'SELECT * FROM movie WHERE movie.mov_id = :name1'
-  cmd2 = 'SELECT genre.name FROM movie, genre, belong_to WHERE movie.mov_id = :name2 AND movie.mov_id = belong_to.mov_id AND belong_to.genre_id = genre.genre_id'
-  cmd3 = 'SELECT act.cast_id, act.role, mov_cast.name FROM movie, mov_cast, act WHERE movie.mov_id = :name3 AND movie.mov_id = act.mov_id AND act.cast_id = mov_cast.cast_id'
-  selected_movie_info = g.conn.execute(text(cmd1), name1=id).fetchone()
-  selected_movie_genre = g.conn.execute(text(cmd2), name2=id)
-  selected_movie_castInfo = g.conn.execute(text(cmd3), name3=id)
+  cmd1 = 'SELECT * FROM movie WHERE movie.mov_id = %s'
+  cmd2 = 'SELECT genre.name FROM movie, genre, belong_to WHERE movie.mov_id = %s AND movie.mov_id = belong_to.mov_id AND belong_to.genre_id = genre.genre_id'
+  cmd3 = 'SELECT act.cast_id, act.role, mov_cast.name FROM movie, mov_cast, act WHERE movie.mov_id = %s AND movie.mov_id = act.mov_id AND act.cast_id = mov_cast.cast_id'
+  cmd4 = 'SELECT link.web_id, link.mov_id FROM link WHERE link.mov_id = %s'
+  selected_movie_info = g.conn.execute(cmd1, (id,)).fetchone()
+  selected_movie_genre = g.conn.execute(cmd2, (id,))
+  selected_movie_castInfo = g.conn.execute(cmd3, (id,))
+  selected_movie_link = g.conn.execute(cmd4, (id,)).fetchone()
 
   # print(type(selected_movie), file=sys.stderr)
 
-  return render_template("./movies/show.html", selected_movie_info = selected_movie_info, selected_movie_genre=selected_movie_genre, selected_movie_castInfo=selected_movie_castInfo)
+  return render_template("./movies/show.html", selected_movie_info = selected_movie_info, selected_movie_genre=selected_movie_genre, selected_movie_castInfo=selected_movie_castInfo, selected_movie_link=selected_movie_link)
 
 
 #This is actor-show page
 @app.route('/actors/<int:id>')
 def actor_show(id):
-  cmd1 = 'SELECT * FROM mov_cast WHERE mov_cast.cast_id = :name1'
-  cmd2 = 'SELECT movie.mov_id, movie.name, act.role FROM movie, mov_cast, act WHERE mov_cast.cast_id = :name2 AND movie.mov_id = act.mov_id AND mov_cast.cast_id = act.cast_id'
-  selected_actor_info = g.conn.execute(text(cmd1), name1=id).fetchone()
-  selected_actor_movieInfo = g.conn.execute(text(cmd2), name2 = id)
+  cmd1 = 'SELECT * FROM mov_cast WHERE mov_cast.cast_id = %s'
+  cmd2 = 'SELECT movie.mov_id, movie.name, act.role FROM movie, mov_cast, act WHERE mov_cast.cast_id = %s AND movie.mov_id = act.mov_id AND mov_cast.cast_id = act.cast_id'
+  selected_actor_info = g.conn.execute(cmd1, (id,)).fetchone()
+  selected_actor_movieInfo = g.conn.execute(cmd2, (id,))
   return render_template("./actors/show.html", selected_actor_info = selected_actor_info, selected_actor_movieInfo = selected_actor_movieInfo)
+
+
+#This is user-show page
+@app.route('/users/<int:id>')
+def user_show(id):
+  cmd1 = 'SELECT * FROM user_most_like WHERE user_most_like.user_id = %s'
+  cmd2 = 'SELECT user_most_like.user_id, user_most_like.genre_id, genre.name FROM user_most_like, genre WHERE user_most_like.user_id = %s AND user_most_like.genre_id = genre.genre_id'
+  selected_user_info = g.conn.execute(cmd1, (id,)).fetchone()
+  selected_user_genreInfo = g.conn.execute(cmd2, (id,)).fetchone()
+  return render_template("./users/show.html", selected_user_info=selected_user_info, selected_user_genreInfo=selected_user_genreInfo)
+
+
 
 # This is the search path
 @app.route('/search',methods=['POST'])
@@ -174,13 +179,13 @@ def search():
     search_content = '%'+search_content+'%'
     results = []
     if search_for == 'movies':
-      cmd = "SELECT mov_id, name FROM movie WHERE movie.name LIKE (:name1) limit 10"
-      search_result = g.conn.execute(text(cmd), name1=search_content)
+      cmd = "SELECT mov_id, name FROM movie WHERE movie.name LIKE %s limit 10"
+      search_result = g.conn.execute(cmd, (search_content))
       for result in search_result:
         results.append(result)
     elif search_for == 'actors':
-      cmd = "SELECT cast_id, name FROM mov_cast WHERE mov_cast.name LIKE (:name2) limit 10"
-      search_result = g.conn.execute(text(cmd), name2=search_content)
+      cmd = "SELECT cast_id, name FROM mov_cast WHERE mov_cast.name LIKE %s limit 10"
+      search_result = g.conn.execute(cmd, (search_content))
       for result in search_result:
         results.append(result)
     print(len(results))
@@ -188,6 +193,7 @@ def search():
  
   # elif search_for == 'actors':
   return redirect('/')
+
 
 # add ratings or movies into database
 @app.route('/add', methods=['GET','POST'])
@@ -248,7 +254,7 @@ def add():
 @app.route("/register", methods=['GET', 'POST'])
 def register():
   if request.method == 'POST':
-      print(request.form, file=sys.stderr)
+      # print(request.form, file=sys.stderr)
       username = request.form['username']
       password = request.form['password']
       error = None
@@ -259,14 +265,14 @@ def register():
           error = 'Password is required.'
 
       elif g.conn.execute(
-          text('SELECT id FROM users WHERE username = :name'), name = username
+          'SELECT user_id FROM user_most_like WHERE username = %s', (username,)
       ).fetchone() is not None:
           error = 'User {} is already registered.'.format(username)
 
       if error is None:
           g.conn.execute(
-              text('INSERT INTO users (username, password) VALUES (:name1, :name2)'),
-              name1=username, name2=generate_password_hash(password)
+              'INSERT INTO user_most_like (user_id, username, password) VALUES (DEFAULT, %s, %s)',
+              (username, generate_password_hash(password),)
           )
           flash('User {} successfully registered.'.format(username),'success')
           return redirect(url_for('login'))
@@ -278,23 +284,27 @@ def register():
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-
+    print(session)
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         error = None
         user = g.conn.execute(
-            text('SELECT * FROM users WHERE username = :name'), name=username
+            'SELECT * FROM user_most_like WHERE username = %s', (username,)
         ).fetchone()
 
         if user is None:
             error = 'Incorrect username.'
         elif not check_password_hash(user['password'], password):
             error = 'Incorrect password.'
+        # elif not user['password'] == password:
+        #     error = 'Incorrect password.'
 
         if error is None:
             session.clear()
-            session['user_id'] = user['id']
+            session['user_id'] = user['user_id']
+            session['username'] = user['username']
+
             return redirect(url_for('movie_index'))
 
         flash(error,'danger')
