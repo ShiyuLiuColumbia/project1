@@ -176,9 +176,11 @@ def director_show(id):
 def user_show(id):
   cmd1 = 'SELECT * FROM user_most_like WHERE user_most_like.user_id = %s'
   cmd2 = 'SELECT user_most_like.user_id, user_most_like.genre_id, genre.name FROM user_most_like, genre WHERE user_most_like.user_id = %s AND user_most_like.genre_id = genre.genre_id'
+  cmd3 = 'SELECT movie.mov_id, movie.name, rate.grade, rate.review FROM rate, movie WHERE rate.user_id = %s AND movie.mov_id = rate.mov_id'
   selected_user_info = g.conn.execute(cmd1, (id,)).fetchone()
   selected_user_genreInfo = g.conn.execute(cmd2, (id,)).fetchone()
-  return render_template("./users/show.html", selected_user_info=selected_user_info, selected_user_genreInfo=selected_user_genreInfo)
+  selected_user_rateInfo = g.conn.execute(cmd3, (id,))
+  return render_template("./users/show.html", selected_user_info=selected_user_info, selected_user_genreInfo=selected_user_genreInfo, selected_user_rateInfo=selected_user_rateInfo)
 
 
 
