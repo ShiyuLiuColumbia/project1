@@ -194,6 +194,33 @@ def search():
   # elif search_for == 'actors':
   return redirect('/')
 
+# query movies by genres
+@app.route('/genre', methods=['GET','POST'])
+def genre():
+	if request.method == 'GET':
+		results = None
+		search_content = None
+
+	if request.method == 'POST':
+		results = []
+		search_content = request.form.getlist('genre')[0]
+		earch_content = '%'+search_content+'%'
+		print(search_content)
+
+		# get movies based on genre name
+		cmd = """select movie.name, movie.mov_id, genre.name, belong_to.genre_id 
+		from movie, belong_to, genre 
+		where movie.mov_id=belong_to.mov_id and belong_to.genre_id = genre.genre_id and genre.name = %s limit 30;"""
+
+		search_result = g.conn.execute(cmd, (search_content))
+		
+		for result in search_result:
+			results.append(result)
+
+		print(results)
+		
+	return render_template("/genre.html", results=results, search_content=search_content)
+
 
 # add ratings or movies into database
 @app.route('/add', methods=['GET','POST'])
