@@ -1,11 +1,17 @@
 {% extends "layout.html" %}
 {% block content %}
+<!--
 	<div class="jumbotron">
 		<h1 class="display-4">Welcome to our MovieSearch app</h1>
 		<p class="lead">Course Project 1 of CSOR W4111(Intro to Database) at Columbia University</p>
-		<p class="lead">Designed by Shiyu Liu(sl4401) and Hung-Yi Ou Yang(ho2271)</p>
 		<hr class="my-4">
-		<p>Using Bootstrap, Flask, and PostgreSQL.</p>	
 		<a class="btn btn-primary btn-lg" href="{{url_for('movie_index')}}" role="button">View</a>
 	</div>
+//-->
+<main role="main" class="container">
+		<h1 class="display-4">Welcome to our MovieSearch App</h1>
+		<p class="lead">Populated by real world movie data from IMDB and TMDB.</p>
+		<hr class="my-4">
+		<a class="btn btn-primary btn-lg" href="{{url_for('movie_index')}}" role="button">View</a>
+</main>
 {% endblock content %}
