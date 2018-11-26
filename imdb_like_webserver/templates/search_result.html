@@ -13,6 +13,12 @@
 		<li><a href="/actors/{{ result[0] }}">{{ result[1] }}</a></li>
 		{% endfor %}	
 	</ul>
+{% elif search_for == 'directors'%}
+	<ul>
+		{% for result in results %}
+		<li><a href="/directors/{{ result[0] }}">{{ result[1] }}</a></li>
+		{% endfor %}	
+	</ul>
 {% endif %}
 
 {% endblock content %}

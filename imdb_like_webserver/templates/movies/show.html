@@ -18,6 +18,13 @@
             {% endfor %}
             </ul>
         </li>
+        <li>Directors: 
+            <ul>
+            {% for director in selected_movie_directorInfo %} 
+            <li>Director Name: <a href="/directors/{{ director[0] }}">{{ director[1] }}</a></li>  
+            {% endfor %}
+            </ul>
+        </li>
         <li><a href="https://www.imdb.com/title/{{ selected_movie_link[0] }}">Link</a></li>
     </ul>
 

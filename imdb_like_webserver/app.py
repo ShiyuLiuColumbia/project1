@@ -139,14 +139,17 @@ def movie_show(id):
   cmd2 = 'SELECT genre.name FROM movie, genre, belong_to WHERE movie.mov_id = %s AND movie.mov_id = belong_to.mov_id AND belong_to.genre_id = genre.genre_id'
   cmd3 = 'SELECT act.cast_id, act.role, mov_cast.name FROM movie, mov_cast, act WHERE movie.mov_id = %s AND movie.mov_id = act.mov_id AND act.cast_id = mov_cast.cast_id'
   cmd4 = 'SELECT link.web_id, link.mov_id FROM link WHERE link.mov_id = %s'
+  cmd5 = 'SELECT director.director_id, director.name FROM movie, direct, director WHERE movie.mov_id = %s AND movie.mov_id = direct.mov_id AND direct.director_id = director.director_id'
   selected_movie_info = g.conn.execute(cmd1, (id,)).fetchone()
   selected_movie_genre = g.conn.execute(cmd2, (id,))
   selected_movie_castInfo = g.conn.execute(cmd3, (id,))
   selected_movie_link = g.conn.execute(cmd4, (id,)).fetchone()
+  selected_movie_directorInfo = g.conn.execute(cmd5, (id,))
+
 
   # print(type(selected_movie), file=sys.stderr)
 
-  return render_template("./movies/show.html", selected_movie_info = selected_movie_info, selected_movie_genre=selected_movie_genre, selected_movie_castInfo=selected_movie_castInfo, selected_movie_link=selected_movie_link)
+  return render_template("./movies/show.html", selected_movie_info = selected_movie_info, selected_movie_genre=selected_movie_genre, selected_movie_castInfo=selected_movie_castInfo, selected_movie_link=selected_movie_link, selected_movie_directorInfo=selected_movie_directorInfo)
 
 
 #This is actor-show page
@@ -157,6 +160,15 @@ def actor_show(id):
   selected_actor_info = g.conn.execute(cmd1, (id,)).fetchone()
   selected_actor_movieInfo = g.conn.execute(cmd2, (id,))
   return render_template("./actors/show.html", selected_actor_info = selected_actor_info, selected_actor_movieInfo = selected_actor_movieInfo)
+
+#This is director-show page
+@app.route('/directors/<int:id>')
+def director_show(id):
+  cmd1 = 'SELECT * FROM director WHERE director.director_id = %s'
+  cmd2 = 'SELECT movie.mov_id, movie.name FROM movie, direct WHERE direct.director_id = %s AND movie.mov_id = direct.mov_id'
+  selected_director_info = g.conn.execute(cmd1, (id,)).fetchone()
+  selected_director_movieInfo = g.conn.execute(cmd2, (id,))
+  return render_template("./directors/show.html", selected_director_info = selected_director_info, selected_director_movieInfo=selected_director_movieInfo)
 
 
 #This is user-show page
@@ -185,6 +197,11 @@ def search():
         results.append(result)
     elif search_for == 'actors':
       cmd = "SELECT cast_id, name FROM mov_cast WHERE mov_cast.name LIKE %s limit 10"
+      search_result = g.conn.execute(cmd, (search_content))
+      for result in search_result:
+        results.append(result)
+    elif search_for == 'directors':
+      cmd = "SELECT director_id, name FROM director WHERE director.name LIKE %s limit 10"
       search_result = g.conn.execute(cmd, (search_content))
       for result in search_result:
         results.append(result)
