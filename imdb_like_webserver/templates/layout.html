@@ -29,34 +29,19 @@
 	    	<li class="nav-item active">
 	    		<a class="nav-link" href="/">Home</a>
 	    	</li>
-	    </ul>
+				<li class="nav-item active">
+					<a class="nav-link" href="/genre">Genres</a>
+				</li>
+			</ul>
 	    <div class="navbar-nav ml-auto">
-				<!--
-		    <form class="form-inline my-2 my-lg-0" action="/search" method="POST">
-		    	<label for="movies" class="text-light">Movies</label>
-		    	<input id="movies" type="radio" name="search_for" class="mr-2" value="movies" checked>
-		    	<label for="actors" class="text-light">Actors</label>
-		    	<input id="actors" type="radio" name="search_for" class="mr-2" value="actors">
-		    	<label for="directors" class="text-light">Directors</label>
-					<input id="directors" type="radio" name="search_for" value="directors">
-
-		    	<input class="form-control mr-sm-2" type="search" name="search_content" aria-label="Search">
-		    	<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-				</form>
-				//-->
 				<form class="form-inline my-2 my-lg-0" action="/search" method="POST">
-					<select class="form-control mr-2" id="exampleFormControlSelect1" name="search_for">
-						<option id="movies" type="radio" value="movies" checked>Movies</option>
-						<option id="actors" type="radio" value="actors">Actors</option>
-						<option id="directors" type="radio" value="directors">Directors</option>
-					</select>
-		    	<input class="form-control mr-sm-2" type="search" placeholder="Search" name="search_content" aria-label="Search">
+					<input class="form-control mr-sm-2" type="search" placeholder="Search for movies..." name="search_content" aria-label="Search">
 		    	<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
 				</form>
 		    {% if 'user_id' in session %}
 		    <ul class="navbar-nav ">
 		      <li class="nav-item active">
-		        <a class="nav-link" href="/users/{{ session['user_id'] }}">{{session['username']}}</a>
+		        <a class="nav-link" href="/users/{{ session['user_id'] }}">{{ session['username'] }}</a>
 		      </li>
 		      <li class="nav-item active">
 		        <a class="nav-link" href="/logout">Logout</a>

@@ -1,24 +1,38 @@
 {% extends "layout.html" %}
 {% block content %}
-<h1>This is the top 10 results for {{ search_for }}</h1>
-{% if search_for == 'movies' %}
-	<ul>
-		{% for result in results %}
-		<li><a href="/movies/{{ result[0] }}">{{ result[1] }}</a></li>
-		{% endfor %}	
-	</ul>
-{% elif search_for == 'actors'%}
-	<ul>
-		{% for result in results %}
-		<li><a href="/actors/{{ result[0] }}">{{ result[1] }}</a></li>
-		{% endfor %}	
-	</ul>
-{% elif search_for == 'directors'%}
-	<ul>
-		{% for result in results %}
-		<li><a href="/directors/{{ result[0] }}">{{ result[1] }}</a></li>
-		{% endfor %}	
-	</ul>
-{% endif %}
-
+<p class="h1">Top results for {{ search_content }}</p>
+<div class="container">
+	<div class="row">
+		<div class="col-sm">
+			<ul class="list-group list-group-flush">
+				<li class="list-group-item d-flex justify-content-between align-items-center">
+					Movies
+				</li>
+				{% for result in movie_results %}
+				<li class="list-group-item"><a href="/movies/{{ result[0] }}">{{ result[1] }}</a></li>
+				{% endfor %}	
+			</ul>
+		</div>
+		<div class="col-sm">
+			<ul class="list-group list-group-flush">
+				<li class="list-group-item d-flex justify-content-between align-items-center">
+					Actors
+				</li>
+				{% for result in actor_results %}
+				<li class="list-group-item"><a href="/actors/{{ result[0] }}">{{ result[1] }}</a></li>
+				{% endfor %}	
+			</ul>
+		</div>
+		<div class="col-sm">
+			<ul class="list-group list-group-flush">
+				<li class="list-group-item d-flex justify-content-between align-items-center">
+					Directors
+				</li>
+				{% for result in director_results %}
+				<li class="list-group-item"><a href="/directors/{{ result[0] }}">{{ result[1] }}</a></li>
+				{% endfor %}	
+			</ul>
+		</div>
+	</div>
+</div>
 {% endblock content %}

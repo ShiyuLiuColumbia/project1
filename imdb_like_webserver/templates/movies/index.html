@@ -1,12 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
-
 	<h1>Recommended movies for you.</h1>
 	<ul>
 		{% for movie in movies %}
 		<li><a href="/movies/{{ movie['mov_id'] }}">{{ movie['name'] }}</a></li>
 		{% endfor %}
 	</ul>
-
-
 {% endblock content %}

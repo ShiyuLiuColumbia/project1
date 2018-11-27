@@ -6,7 +6,7 @@ Example webserver
 
 To run locally
 
-    python app.py
+	python app.py
 
 Go to http://localhost:8111 in your browser
 
@@ -61,11 +61,11 @@ def before_request():
   The variable g is globally accessible
   """
   try:
-    g.conn = engine.connect()
+	g.conn = engine.connect()
   except:
-    print("uh oh, problem connecting to database")
-    import traceback; traceback.print_exc()
-    g.conn = None
+	print("uh oh, problem connecting to database")
+	import traceback; traceback.print_exc()
+	g.conn = None
 
 @app.teardown_request
 def teardown_request(exception):
@@ -74,9 +74,9 @@ def teardown_request(exception):
   If you don't the database could run out of memory!
   """
   try:
-    g.conn.close()
+	g.conn.close()
   except Exception as e:
-    pass
+	pass
 
 # @app.route is a decorator around index() that means:
 #   run index() whenever the user tries to access the "/" path using a GET request
@@ -142,16 +142,16 @@ def movie_show(id):
   cmd5 = 'SELECT director.director_id, director.name FROM movie, direct, director WHERE movie.mov_id = %s AND movie.mov_id = direct.mov_id AND direct.director_id = director.director_id'
   cmd6 = 'SELECT rate.grade, rate.review, user_most_like.user_id, user_most_like.name FROM rate, user_most_like WHERE rate.mov_id = %s AND rate.review is not Null AND user_most_like.user_id = rate.user_id'
   if 'user_id' in session:
-    cmd7 = 'SELECT rate.grade, rate.review FROM movie, rate, user_most_like WHERE movie.mov_id = rate.mov_id AND rate.user_id = user_most_like.user_id AND user_most_like.user_id = %s AND movie.mov_id = %s'
-    selected_user_movie_rateInfos = g.conn.execute(cmd7, (session['user_id'], id,))
-    selected_user_movie_rateInfo= []
-    for tmp in selected_user_movie_rateInfos:
-      selected_user_movie_rateInfo.append(tmp)
-    if len(selected_user_movie_rateInfo) == 0:
-      selected_user_movie_rateInfo = None
+	cmd7 = 'SELECT rate.grade, rate.review FROM movie, rate, user_most_like WHERE movie.mov_id = rate.mov_id AND rate.user_id = user_most_like.user_id AND user_most_like.user_id = %s AND movie.mov_id = %s'
+	selected_user_movie_rateInfos = g.conn.execute(cmd7, (session['user_id'], id,))
+	selected_user_movie_rateInfo= []
+	for tmp in selected_user_movie_rateInfos:
+	  selected_user_movie_rateInfo.append(tmp)
+	if len(selected_user_movie_rateInfo) == 0:
+	  selected_user_movie_rateInfo = None
 
   else:
-    selected_user_movie_rateInfo = None
+	selected_user_movie_rateInfo = None
 
 
   selected_movie_info = g.conn.execute(cmd1, (id,)).fetchone()
@@ -162,7 +162,7 @@ def movie_show(id):
   selected_movie_rateInfos = g.conn.execute(cmd6, (id,))
   selected_movie_rateInfo = []
   for tmp in selected_movie_rateInfos:
-    selected_movie_rateInfo.append(tmp)
+	selected_movie_rateInfo.append(tmp)
 
 
   # print(type(selected_movie), file=sys.stderr)
@@ -173,52 +173,52 @@ def movie_show(id):
 @app.route('/movies/<int:id>/rates',methods=['GET', 'POST'])
 def rate_add(id):
   if 'user_id' not in session:
-    flash('Please login first before add reviews!','danger')
-    return redirect(url_for('login'))
+	flash('Please login first before add reviews!','danger')
+	return redirect(url_for('login'))
   else:
-    if request.method == 'GET':
-      cmd1 = 'SELECT movie.name FROM movie WHERE movie.mov_id = %s limit 10'
-      selected_movie_info = g.conn.execute(cmd1, (id,)).fetchone()
-      return render_template("./rates/add.html", id = id, selected_movie_info=selected_movie_info)
-    else:
-      grade = request.form['grade']
-      review = request.form['review']
-      user_id = session['user_id']
-      mov_id = id
-      cmd2 = 'INSERT INTO rate(mov_id, user_id, grade, review) VALUES (%s, %s, %s, %s);'
-      g.conn.execute(cmd2, (mov_id, user_id, grade, review))
-      return redirect(url_for('movie_show', id=mov_id))
+	if request.method == 'GET':
+	  cmd1 = 'SELECT movie.name FROM movie WHERE movie.mov_id = %s limit 10'
+	  selected_movie_info = g.conn.execute(cmd1, (id,)).fetchone()
+	  return render_template("./rates/add.html", id = id, selected_movie_info=selected_movie_info)
+	else:
+	  grade = request.form['grade']
+	  review = request.form['review']
+	  user_id = session['user_id']
+	  mov_id = id
+	  cmd2 = 'INSERT INTO rate(mov_id, user_id, grade, review) VALUES (%s, %s, %s, %s);'
+	  g.conn.execute(cmd2, (mov_id, user_id, grade, review))
+	  return redirect(url_for('movie_show', id=mov_id))
 
 #This is review-edit route
 @app.route('/movies/<int:id>/rates/edit',methods=['GET', 'POST'])
 def rate_edit(id):
   if 'user_id' not in session:
-    flash('Please login first before edit reviews!','danger')
-    return redirect(url_for('login'))
+	flash('Please login first before edit reviews!','danger')
+	return redirect(url_for('login'))
   else:
-    if request.method == 'GET':
-      cmd1 = 'SELECT movie.name, rate.grade, rate.review FROM movie, rate, user_most_like WHERE movie.mov_id = %s AND rate.mov_id = movie.mov_id AND user_most_like.user_id = rate.user_id'
-      selected_rate_info = g.conn.execute(cmd1, (id,)).fetchone()
-      return render_template("./rates/edit.html", id = id, selected_rate_info=selected_rate_info)
-    else:
-      grade = request.form['grade']
-      review = request.form['review']
-      user_id = session['user_id']
-      mov_id = id
-      cmd2 = 'UPDATE rate SET grade = %s, review = %s WHERE rate.user_id = %s AND rate.mov_id =%s;'
-      g.conn.execute(cmd2, (grade, review, user_id, mov_id,))
-      return redirect(url_for('movie_show', id=mov_id))
+	if request.method == 'GET':
+	  cmd1 = 'SELECT movie.name, rate.grade, rate.review FROM movie, rate, user_most_like WHERE movie.mov_id = %s AND rate.mov_id = movie.mov_id AND user_most_like.user_id = rate.user_id'
+	  selected_rate_info = g.conn.execute(cmd1, (id,)).fetchone()
+	  return render_template("./rates/edit.html", id = id, selected_rate_info=selected_rate_info)
+	else:
+	  grade = request.form['grade']
+	  review = request.form['review']
+	  user_id = session['user_id']
+	  mov_id = id
+	  cmd2 = 'UPDATE rate SET grade = %s, review = %s WHERE rate.user_id = %s AND rate.mov_id =%s;'
+	  g.conn.execute(cmd2, (grade, review, user_id, mov_id,))
+	  return redirect(url_for('movie_show', id=mov_id))
 
 #This is review-delete route
 @app.route('/movies/<int:id>/rates/delete',methods=['POST'])
 def rate_delete(id):
   if 'user_id' not in session:
-    flash('Please login first before delete reviews!','danger')
-    return redirect(url_for('login'))
+	flash('Please login first before delete reviews!','danger')
+	return redirect(url_for('login'))
   else:
-    cmd = 'DELETE FROM rate WHERE user_id = %s AND mov_id = %s'
-    g.conn.execute(cmd, (session['user_id'], id, ))
-    return redirect(url_for('movie_show', id=id))
+	cmd = 'DELETE FROM rate WHERE user_id = %s AND mov_id = %s'
+	g.conn.execute(cmd, (session['user_id'], id, ))
+	return redirect(url_for('movie_show', id=id))
 
 
 #This is actor-show route
@@ -257,27 +257,26 @@ def user_show(id):
 @app.route('/search',methods=['POST'])
 def search():
   if request.method == 'POST':
-    search_for = request.form['search_for']
-    search_content = request.form['search_content']
-    search_content = '%'+search_content+'%'
-    results = []
-    if search_for == 'movies':
-      cmd = "SELECT mov_id, name FROM movie WHERE movie.name LIKE %s limit 10"
-      search_result = g.conn.execute(cmd, (search_content))
-      for result in search_result:
-        results.append(result)
-    elif search_for == 'actors':
-      cmd = "SELECT cast_id, name FROM mov_cast WHERE mov_cast.name LIKE %s limit 10"
-      search_result = g.conn.execute(cmd, (search_content))
-      for result in search_result:
-        results.append(result)
-    elif search_for == 'directors':
-      cmd = "SELECT director_id, name FROM director WHERE director.name LIKE %s limit 10"
-      search_result = g.conn.execute(cmd, (search_content))
-      for result in search_result:
-        results.append(result)
-    print(len(results))
-    return render_template("search_result.html", results=results, search_for=search_for)
+	#search_for = request.form['search_for']
+	search_content = request.form['search_content']
+	search_content = '%'+search_content+'%'
+	movie_results = []
+	actor_results = []
+	director_results = []
+	cmd = "SELECT mov_id, name FROM movie WHERE movie.name ILIKE %s limit 10"
+	search_result = g.conn.execute(cmd, (search_content))
+	for result in search_result:
+		movie_results.append(result)
+	cmd = "SELECT cast_id, name FROM mov_cast WHERE mov_cast.name ILIKE %s limit 10"
+	search_result = g.conn.execute(cmd, (search_content))
+	for result in search_result:
+		actor_results.append(result)
+	cmd = "SELECT director_id, name FROM director WHERE director.name ILIKE %s limit 10"
+	search_result = g.conn.execute(cmd, (search_content))
+	for result in search_result:
+		director_results.append(result)
+	search_content = search_content[1:-1]
+	return render_template("search_result.html", movie_results = movie_results, actor_results=actor_results, director_results=director_results, search_content=search_content)
  
   # elif search_for == 'actors':
   return redirect('/')
@@ -369,67 +368,67 @@ def add():
 @app.route("/register", methods=['GET', 'POST'])
 def register():
   if request.method == 'POST':
-      # print(request.form, file=sys.stderr)
-      username = request.form['username']
-      password = request.form['password']
-      error = None
+	  # print(request.form, file=sys.stderr)
+	  username = request.form['username']
+	  password = request.form['password']
+	  error = None
 
-      if not username:
-          error = 'Username is required.'
-      elif not password:
-          error = 'Password is required.'
+	  if not username:
+		  error = 'Username is required.'
+	  elif not password:
+		  error = 'Password is required.'
 
-      elif g.conn.execute(
-          'SELECT user_id FROM user_most_like WHERE username = %s', (username,)
-      ).fetchone() is not None:
-          error = 'User {} is already registered.'.format(username)
+	  elif g.conn.execute(
+		  'SELECT user_id FROM user_most_like WHERE username = %s', (username,)
+	  ).fetchone() is not None:
+		  error = 'User {} is already registered.'.format(username)
 
-      if error is None:
-          g.conn.execute(
-              'INSERT INTO user_most_like (user_id, username, password) VALUES (DEFAULT, %s, %s)',
-              (username, generate_password_hash(password),)
-          )
-          flash('User {} successfully registered.'.format(username),'success')
-          return redirect(url_for('login'))
+	  if error is None:
+		  g.conn.execute(
+			  'INSERT INTO user_most_like (user_id, username, password) VALUES (DEFAULT, %s, %s)',
+			  (username, generate_password_hash(password),)
+		  )
+		  flash('User {} successfully registered.'.format(username),'success')
+		  return redirect(url_for('login'))
 
-      flash(error,'danger')
+	  flash(error,'danger')
 
   return render_template('register.html', title='Sign up')
 
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
-    print(session)
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        error = None
-        user = g.conn.execute(
-            'SELECT * FROM user_most_like WHERE username = %s', (username,)
-        ).fetchone()
+	print(session)
+	if request.method == 'POST':
+		username = request.form['username']
+		password = request.form['password']
+		error = None
+		user = g.conn.execute(
+			'SELECT * FROM user_most_like WHERE username = %s', (username,)
+		).fetchone()
 
-        if user is None:
-            error = 'Incorrect username.'
-        elif not check_password_hash(user['password'], password):
-            error = 'Incorrect password.'
-        # elif not user['password'] == password:
-        #     error = 'Incorrect password.'
+		if user is None:
+			error = 'Incorrect username.'
+		elif not check_password_hash(user['password'], password):
+			error = 'Incorrect password.'
+		# elif not user['password'] == password:
+		#     error = 'Incorrect password.'
 
-        if error is None:
-            session.clear()
-            session['user_id'] = user['user_id']
-            session['username'] = user['username']
+		if error is None:
+			session.clear()
+			session['user_id'] = user['user_id']
+			session['username'] = user['username']
 
-            return redirect(url_for('movie_index'))
+			return redirect(url_for('movie_index'))
 
-        flash(error,'danger')
+		flash(error,'danger')
 
-    return render_template('login.html',title='Login')
+	return render_template('login.html',title='Login')
 
 @app.route('/logout')
 def logout():
-    session.clear()
-    return redirect(url_for('movie_index'))
+	session.clear()
+	return redirect(url_for('movie_index'))
 
 
 if __name__ == "__main__":
@@ -441,21 +440,21 @@ if __name__ == "__main__":
   @click.argument('HOST', default='0.0.0.0')
   @click.argument('PORT', default=8112, type=int)
   def run(debug, threaded, host, port):
-    """
-    This function handles command line parameters.
-    Run the server using
+	"""
+	This function handles command line parameters.
+	Run the server using
 
-        python server.py
+		python server.py
 
-    Show the help text using
+	Show the help text using
 
-        python server.py --help
+		python server.py --help
 
-    """
+	"""
 
-    HOST, PORT = host, port
-    print("running on %s:%d" % (HOST, PORT))
-    app.run(host=HOST, port=PORT, debug=True, threaded=threaded)
+	HOST, PORT = host, port
+	print("running on %s:%d" % (HOST, PORT))
+	app.run(host=HOST, port=PORT, debug=True, threaded=threaded)
 
 
   run()
