@@ -131,7 +131,7 @@ def movie_index():
   for movie in result:
     movies.append(movie)
   print(type(movies), file=sys.stderr)
-  return render_template("./movies/index.html", movies = movies)
+  return render_template("./movies/index.html", movies = movies, title= "Recommended movies for you.")
 
 
 #This is the movie-show page
@@ -309,7 +309,7 @@ def genre():
 			results.append(result)
 
 		print(results)
-		return render_template("./movies/index.html", movies = results)
+		return render_template("./movies/index.html", movies = results, title= "Top results for ", search_content = search_content)
 		
 
 # add ratings or movies into database

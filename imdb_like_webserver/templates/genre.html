@@ -1,6 +1,6 @@
 {% extends "layout.html" %}
 {% block content %}
-		<h2>Search movies based on genre</h2>
+		<h2>Search movies by genre</h2>
 		<form method="POST" action="/genre">
 			<input type="checkbox" name="genre" value="Action"> Action<br>
 			<input type="checkbox" name="genre" value="Adventure"> Adventure<br>
@@ -21,7 +21,7 @@
 			<input type="checkbox" name="genre" value="TV Movie"> TV Movie<br>
 			<input type="checkbox" name="genre" value="War"> War<br>
 			<input type="checkbox" name="genre" value="Western"> Western<br>
-			<input type="submit" value="Submit">
+			<input type="submit" value="Search" class="btn btn-outline-success">
 		</form>
 		{% if search_content and results%}
 		<div>This is the 30 movies based on genre {{search_content}}</div>
