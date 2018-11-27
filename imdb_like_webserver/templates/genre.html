@@ -1,87 +1,28 @@
 {% extends "layout.html" %}
 {% block content %}
 		<h2>Search movies based on genre</h2>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Action">
-			<label class="form-check-label" for="defaultCheck1">Action</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Adventure">
-			<label class="form-check-label" for="defaultCheck2">Adventure</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Animation">
-			<label class="form-check-label" for="defaultCheck2">Animation</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Comedy">
-			<label class="form-check-label" for="defaultCheck4">Comedy</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Crime">
-			<label class="form-check-label" for="defaultCheck5">Crime</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Documentary">
-			<label class="form-check-label" for="defaultCheck6">Documentary</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Drama">
-			<label class="form-check-label" for="defaultCheck7">Drama</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Family">
-			<label class="form-check-label" for="defaultCheck8">Family</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Fantasy">
-			<label class="form-check-label" for="defaultCheck9">Fantasy</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Foreign">
-			<label class="form-check-label" for="defaultCheck10">Foreign</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="History">
-			<label class="form-check-label" for="defaultCheck11">History</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Horror">
-			<label class="form-check-label" for="defaultCheck11">Horror</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Music">
-			<label class="form-check-label" for="defaultCheck13">Music</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Mystery">
-			<label class="form-check-label" for="defaultCheck14">Mystery</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Romance">
-			<label class="form-check-label" for="defaultCheck14">Romance</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Science Fiction">
-			<label class="form-check-label" for="defaultCheck16">Science Fiction</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Thriller">
-			<label class="form-check-label" for="defaultCheck17">Thriller</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="TV Movie">
-			<label class="form-check-label" for="defaultCheck18">TV Movie</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="War">
-			<label class="form-check-label" for="defaultCheck19">War</label>
-		</div>
-		<div class="form-check" action="/genre" method="POST">
-			<input class="form-check-input" type="checkbox" name="genre" value="Western">
-			<label class="form-check-label" for="defaultCheck20">Western</label>
-		</div>
-			<input type="submit" class="btn btn-outline-success" value="Submit">
+		<form method="POST" action="/genre">
+			<input type="checkbox" name="genre" value="Action"> Action<br>
+			<input type="checkbox" name="genre" value="Adventure"> Adventure<br>
+			<input type="checkbox" name="genre" value="Animation"> Animation<br>
+			<input type="checkbox" name="genre" value="Comedy"> Comedy<br>
+			<input type="checkbox" name="genre" value="Crime"> Crime<br>
+			<input type="checkbox" name="genre" value="Documentary"> Documentary<br>
+			<input type="checkbox" name="genre" value="Drama"> Drama<br>
+			<input type="checkbox" name="genre" value="Family"> Family<br>
+			<input type="checkbox" name="genre" value="Fantasy"> Fantasy<br>
+			<input type="checkbox" name="genre" value="Foreign"> Foreign<br>
+			<input type="checkbox" name="genre" value="History"> History<br>
+			<input type="checkbox" name="genre" value="Music"> Music<br>
+			<input type="checkbox" name="genre" value="Mystery"> Mystery<br>
+			<input type="checkbox" name="genre" value="Romance"> Romance<br>
+			<input type="checkbox" name="genre" value="Science Fiction"> Science Fiction<br>
+			<input type="checkbox" name="genre" value="Thriller"> Thriller<br>
+			<input type="checkbox" name="genre" value="TV Movie"> TV Movie<br>
+			<input type="checkbox" name="genre" value="War"> War<br>
+			<input type="checkbox" name="genre" value="Western"> Western<br>
+			<input type="submit" value="Submit">
+		</form>
 		{% if search_content and results%}
 		<div>This is the 30 movies based on genre {{search_content}}</div>
 		<div>
