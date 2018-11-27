@@ -337,8 +337,8 @@ def add():
 
 			print(name, mov_id, language, runtime, release_date, revenue)
 
-			cmd = 'INSERT INTO movie(name, mov_id, language, runtime, release_date, revenue) VALUES (:name1), (:name2), (:name3), (:name4), (:name5), (:name6);'
-			#g.conn.execute(text(cmd), name1 = name, name2 = mov_id, name3=language, name4=runtime, name5=release_date, name6=revenue)
+			cmd = 'INSERT INTO movie(name, mov_id, language, runtime, release_date, revenue) VALUES (%s, %s, %s, %s, %s, %s);'
+			g.conn.execute(cmd, (name, mov_id, language, runtime, release_date, revenue, ))
 		else:
 			print("DID NOT GET THE FORM VALUE")
 	return render_template("/add.html")
