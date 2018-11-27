@@ -78,18 +78,6 @@ def teardown_request(exception):
   except Exception as e:
 	pass
 
-# @app.route is a decorator around index() that means:
-#   run index() whenever the user tries to access the "/" path using a GET request
-#
-# If you wanted the user to go to e.g., localhost:8111/foobar/ with POST or GET then you could use
-#
-#       @app.route("/foobar/", methods=["POST", "GET"])
-#
-# PROTIP: (the trailing / in the path is important)
-# 
-# see for routing: http://flask.pocoo.org/docs/0.10/quickstart/#routing
-# see for decorators: http://simeonfranklin.com/blog/2012/jul/1/python-decorators-in-12-steps/
-#
 @app.route('/')
 def home():
 	"""
@@ -105,20 +93,6 @@ def home():
 	# DEBUG: this is debugging code to see what request looks like
  	print(request.args)
 
-
-  # #
-  # # example of a database query
-  # #
-  # cursor = g.conn.execute("SELECT name FROM test")
-  # names = []
-  # for result in cursor:
-  #   names.append(result['name'])  # can also be accessed using result[0]
-  # cursor.close()
-
-  # context = dict(data = names)
-
-
-  # return render_template("index.html", **context)
 	return render_template("home.html")
 
 
@@ -166,7 +140,6 @@ def movie_show(id):
   selected_movie_rateInfo = []
   for tmp in selected_movie_rateInfos:
 	selected_movie_rateInfo.append(tmp)
-
 
   # print(type(selected_movie), file=sys.stderr)
 
@@ -254,8 +227,6 @@ def user_show(id):
   selected_user_rateInfo = g.conn.execute(cmd3, (id,))
   return render_template("./users/show.html", selected_user_info=selected_user_info, selected_user_genreInfo=selected_user_genreInfo, selected_user_rateInfo=selected_user_rateInfo)
 
-
-
 # This is the search path
 @app.route('/search',methods=['POST'])
 def search():
@@ -281,7 +252,6 @@ def search():
 	search_content = search_content[1:-1]
 	return render_template("search_result.html", movie_results = movie_results, actor_results=actor_results, director_results=director_results, search_content=search_content)
  
-  # elif search_for == 'actors':
   return redirect('/')
 
 # query movies by genres
@@ -311,26 +281,13 @@ def genre():
 		print(results)
 		return render_template("./movies/index.html", movies = results, title= "Top movies in ", search_content = search_content)
 		
-
 # add ratings or movies into database
 @app.route('/add', methods=['GET','POST'])
 def add():
 	if request.method == 'GET':
 		pass
-
 	if request.method == 'POST':
-		if "new_rate" in request.form:
-			mov_id = request.form.get('mov_id')
-			user_id = request.form.get('user_id')
-			grade = request.form.get('grade')
-			review = request.form.get('review')
-			
-			print(mov_id, user_id, grade, review)
-
-			cmd = 'INSERT INTO rate(mov_id, user_id, grade, review) VALUES (:name1), (:name2), (:name3), (:name4);'
-			#g.conn.execute(text(cmd), name1 = mov_id, name2 = user_id, name3=grade, name4=review)
-		
-		elif "new_movie" in request.form:
+		if "new_movie" in request.form:
 			name = request.form.get('name')
 			mov_id = request.form.get('mov_id')
 			language = request.form.get('language')
@@ -345,28 +302,6 @@ def add():
 		else:
 			print("DID NOT GET THE FORM VALUE")
 	return render_template("/add.html")
-
-#This is the login and register using flask-wtf 
-# @app.route("/register", methods=['GET', 'POST'])
-# def register():
-#     form = RegistrationForm()
-#     if form.validate_on_submit():
-#         flash('Account created for {}!'.format(form.username.data), 'success')
-#         return redirect(url_for('movie_index'))
-#     return render_template('register.html', title='Register', form=form)
-
-
-# @app.route("/login", methods=['GET', 'POST'])
-# def login():
-#     form = LoginForm()
-#     if form.validate_on_submit():
-#         if form.email.data == 'admin@blog.com' and form.password.data == 'password':
-#             flash('You have been logged in!', 'success')
-#             return redirect(url_for('movie_index'))
-#         else:
-#             flash('Login Unsuccessful. Please check username and password', 'danger')
-#     return render_template('login.html', title='Login', form=form)
-
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
