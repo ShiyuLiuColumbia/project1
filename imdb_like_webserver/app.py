@@ -125,8 +125,11 @@ def home():
 #This is the movie-index page
 @app.route('/movies')
 def movie_index():
-  cmd = 'SELECT * FROM movie ORDER BY RANDOM() LIMIT 10 '
-  movies = g.conn.execute(text(cmd))
+  cmd = 'SELECT * FROM movie ORDER BY RANDOM() LIMIT 12'
+  movies =[]
+  result = g.conn.execute(text(cmd))
+  for movie in result:
+    movies.append(movie)
   print(type(movies), file=sys.stderr)
   return render_template("./movies/index.html", movies = movies)
 
