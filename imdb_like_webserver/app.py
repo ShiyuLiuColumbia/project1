@@ -101,7 +101,7 @@ def movie_index():
   movies =[]
   result = g.conn.execute(text(cmd))
   for movie in result:
-    movies.append(movie)
+	movies.append(movie)
   print(type(movies), file=sys.stderr)
   return render_template("./movies/index.html", movies = movies, title= "Recommended movies for you.")
 
