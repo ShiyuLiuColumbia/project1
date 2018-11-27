@@ -36,8 +36,8 @@ app = Flask(__name__, template_folder=tmpl_dir)
 # For your convenience, we already set it to the class database
 
 # Use the DB credentials you received by e-mail
-DB_USER = "ho2271"
-DB_PASSWORD = "d1d6s4ad"
+DB_USER = "sl4401"
+DB_PASSWORD = "ahe08y00"
 
 DB_SERVER = "w4111.cisxo09blonu.us-east-1.rds.amazonaws.com"
 
