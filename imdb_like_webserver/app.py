@@ -309,7 +309,7 @@ def genre():
 			results.append(result)
 
 		print(results)
-		return render_template("./movies/index.html", movies = results, title= "Top results for ", search_content = search_content)
+		return render_template("./movies/index.html", movies = results, title= "Top movies in ", search_content = search_content)
 		
 
 # add ratings or movies into database
