@@ -290,6 +290,7 @@ def genre():
 	if request.method == 'GET':
 		results = None
 		search_content = None
+		return render_template("/genre.html", results=results, search_content=search_content)
 
 	if request.method == 'POST':
 		results = []
@@ -298,9 +299,9 @@ def genre():
 		print(search_content)
 
 		# get movies based on genre name
-		cmd = """select movie.name, movie.mov_id, genre.name, belong_to.genre_id 
+		cmd = """select movie.name, movie.mov_id, movie.language, movie.runtime, movie.release_date, movie.revenue, movie.poster_path
 		from movie, belong_to, genre 
-		where movie.mov_id=belong_to.mov_id and belong_to.genre_id = genre.genre_id and genre.name = %s limit 30;"""
+		where movie.mov_id=belong_to.mov_id and belong_to.genre_id = genre.genre_id and genre.name = %s limit 12;"""
 
 		search_result = g.conn.execute(cmd, (search_content))
 		
@@ -308,9 +309,8 @@ def genre():
 			results.append(result)
 
 		print(results)
+		return render_template("./movies/index.html", movies = results)
 		
-	return render_template("/genre.html", results=results, search_content=search_content)
-
 
 # add ratings or movies into database
 @app.route('/add', methods=['GET','POST'])
