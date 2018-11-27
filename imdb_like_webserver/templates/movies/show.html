@@ -3,9 +3,9 @@
     <h1>Movie Name: {{ selected_movie_info['name'] }}</h1>
     <ul>
         <li>Language: {{ selected_movie_info['language'] }}</li>
-        <li>Runtime: {{ selected_movie_info['runtime'] }} minutes</li>
+        <li>Runtime: {{ selected_movie_info['runtime']}} minutes</li>
         <li>Release Date: {{ selected_movie_info['release_date'] }}</li>
-        <li>Revenue: ${{ selected_movie_info['revenue'] }}</li>
+        <li>Revenue: $ {{ selected_movie_info['revenue'] }}</li>
         <li>Genre: 
             {% for genre in selected_movie_genre %}
             {{ genre[0] }}
@@ -15,19 +15,18 @@
             <ul>
             {% for actor in selected_movie_castInfo %} 
             <li><a href="/actors/{{ actor[0] }}">{{ actor[2] }}</a> ---- Act as {{ actor[1] }}</li>  
+
             {% endfor %}
             </ul>
         </li>
         <li>Directors: 
             <ul>
             {% for director in selected_movie_directorInfo %} 
-            <li><a href="/directors/{{ director[0] }}">{{ director[1] }}</a></li>  
+            <li>Director Name: <a href="/directors/{{ director[0] }}">{{ director[1] }}</a></li>  
             {% endfor %}
             </ul>
         </li>
         <li><a href="https://www.imdb.com/title/{{ selected_movie_link[0] }}">See on IMDB</a></li>
-
-        <li>Ratings and reviews: 
             {% if selected_user_movie_rateInfo is not none %}
             <form class="form-inline" action="{{ url_for('rate_edit', id = selected_movie_info['mov_id']) }}" method="GET" style="display:inline-block">
                 <input type="submit" class="btn btn-sm btn-warning" value="Edit Your Review">
