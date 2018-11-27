@@ -48,15 +48,6 @@ DATABASEURI = "postgresql://"+DB_USER+":"+DB_PASSWORD+"@"+DB_SERVER+"/w4111"
 # This line creates a database engine that knows how to connect to the URI above
 engine = create_engine(DATABASEURI)
 
-# Here we create a test table and insert some values in it
-engine.execute("""DROP TABLE IF EXISTS users;""")
-
-engine.execute("""CREATE TABLE users (
-  id SERIAL PRIMARY KEY ,
-  username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL
-);""")
-
 @app.before_request
 def before_request():
   """
